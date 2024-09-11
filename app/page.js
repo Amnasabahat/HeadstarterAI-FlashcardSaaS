@@ -1,5 +1,6 @@
 // app/page.js
 
+
 import React from 'react';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
@@ -7,7 +8,8 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
-import { SignedOut, SignedIn, UserButton } from '@clerk/nextjs'; // Adjust the import based on your actual library
+import { SignedOut, SignedIn} from '@clerk/nextjs'; 
+import { UserButton } from '@clerk/nextjs';// Adjust the import based on your actual library
 
 const Page = () => {
   const handleSubmit = async () => {
