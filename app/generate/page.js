@@ -8,8 +8,9 @@ import {
     Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, TextField, Tabs, Tab
 } from '@mui/material';
 import { doc, collection, writeBatch, getDoc } from 'firebase/firestore';
-import { db } from '@/firebase';
 import HomeIcon from '@mui/icons-material/Home';
+import { db } from '@/firebase'; // or the correct path if `firebase.js` is in a subdirectory
+
 
 const gradients = [
     'linear-gradient(135deg, #333333 0%, #104EB1 100%)',
@@ -290,7 +291,7 @@ export default function Generate() {
 
                 <Button
                     variant="outlined"
-                    sx={{
+                    sx={{ 
                         borderRadius: 2,
                         borderColor: '#4a90e2',
                         color: '#4a90e2',
