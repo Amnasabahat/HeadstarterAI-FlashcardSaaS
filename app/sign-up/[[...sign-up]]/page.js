@@ -8,7 +8,7 @@ export default function SignUpPage() {
       <AppBar position="static" sx={{ backgroundColor: '#000000' }}>
       <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Galaxy Flashcards
+            CardWiz
           </Typography>
           <Button color ="inherit">
             <Link href="/sign_up" color="inherit">Sign Up</Link>

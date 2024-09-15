@@ -4,13 +4,12 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
 import {
-    IconButton, Container, Box,AppBar,Toolbar,Link, Typography, Button, Grid, Card, CardActionArea, CardContent,
+    IconButton, Container, Box, AppBar, Toolbar, Typography, Button, Grid, Card, CardActionArea, CardContent,
     Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, TextField, Tabs, Tab
 } from '@mui/material';
 import { doc, collection, writeBatch, getDoc } from 'firebase/firestore';
+import { db } from '@/firebase';
 import HomeIcon from '@mui/icons-material/Home';
-import { db } from '@/firebase'; // or the correct path if `firebase.js` is in a subdirectory
-
 
 const gradients = [
     'linear-gradient(135deg, #333333 0%, #104EB1 100%)',
@@ -34,7 +33,7 @@ export default function Generate() {
 
     const handleSubmit = async () => {
         try {
-            const response = await fetch('api/generate', {
+            const response = await fetch('/api/generate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ text }),
@@ -99,16 +98,17 @@ export default function Generate() {
                 }
             }}
         >
-          <AppBar position="static" sx={{ backgroundColor: '#000000' }}>
-      <Toolbar>
-        <Button href="/" sx={{ color: '#ffffff', display: 'flex', alignItems: 'center' }}>
-          <HomeIcon fontSize="large" sx={{ mr: 1 }} />
-          <Typography variant="h6" component="div">
-            Home
-          </Typography>
-        </Button>
-      </Toolbar>
-    </AppBar>
+            <AppBar position="static" sx={{ backgroundColor: '#000000' }}>
+                <Toolbar>
+                    <Button href="/" sx={{ color: '#ffffff', display: 'flex', alignItems: 'center' }}>
+                        <HomeIcon fontSize="large" sx={{ mr: 1 }} />
+                        <Typography variant="h6" component="div">
+                            Home
+                        </Typography>
+                    </Button>
+                </Toolbar>
+            </AppBar>
+
             <Container maxWidth="md">
                 <Box sx={{ mb: 6, textAlign: 'center' }}>
                     <Typography variant="h4" sx={{ paddingTop: 4, fontWeight: 'bold' }} gutterBottom>
@@ -221,10 +221,7 @@ export default function Generate() {
                                                         )}
                                                     </CardContent>
                                                 </CardActionArea>
-                                                <IconButton
-                                                    onClick={() => handleSaveCard(index)}
-                                                    sx={{ position: 'absolute', top: 8, right: 8 }}
-                                                >
+                                                <IconButton onClick={() => handleSaveCard(index)} sx={{ color: 'white' }}>
                                                     {savedCards.includes(flashcard) ? <Bookmark /> : <BookmarkBorder />}
                                                 </IconButton>
                                             </Card>
@@ -232,9 +229,7 @@ export default function Generate() {
                                     ))}
                                 </Grid>
                             ) : (
-                                <Typography variant="body1" color="white">
-                                    No flashcards available. Generate some to preview.
-                                </Typography>
+                                previewShown && <Typography variant="body2">No flashcards generated.</Typography>
                             )}
                         </Box>
                     )}
@@ -252,7 +247,7 @@ export default function Generate() {
                                                     alignItems: 'center',
                                                     justifyContent: 'center',
                                                     borderRadius: 4,
-                                                    background: '#0044cc',
+                                                    background: gradients[index % gradients.length],
                                                     boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1), 0 6px 20px rgba(0, 0, 0, 0.1)',
                                                     transition: 'transform 0.3s ease',
                                                     '&:hover': {
@@ -260,20 +255,15 @@ export default function Generate() {
                                                     },
                                                 }}
                                             >
-                                                <CardActionArea>
-                                                    <CardContent>
-                                                        <Typography variant="h6" component="div" color="white">
-                                                            {flashcard.front}
-                                                        </Typography>
-                                                        <Typography variant="body2" color="white">
-                                                            {flashcard.back}
-                                                        </Typography>
-                                                    </CardContent>
-                                                </CardActionArea>
-                                                <IconButton
-                                                    onClick={() => handleDeleteCard(index)}
-                                                    sx={{ position: 'absolute', top: 8, right: 8 }}
-                                                >
+                                                <CardContent>
+                                                    <Typography variant="h6" component="div" color="white">
+                                                        {flashcard.front}
+                                                    </Typography>
+                                                    <Typography variant="body2" color="white">
+                                                        {flashcard.back}
+                                                    </Typography>
+                                                </CardContent>
+                                                <IconButton onClick={() => handleDeleteCard(index)} sx={{ color: 'white' }}>
                                                     <Delete />
                                                 </IconButton>
                                             </Card>
@@ -281,73 +271,37 @@ export default function Generate() {
                                     ))}
                                 </Grid>
                             ) : (
-                                <Typography variant="body1" color="white">
-                                    No saved flashcards yet.
-                                </Typography>
+                                <Typography variant="body2">No flashcards saved.</Typography>
                             )}
                         </Box>
                     )}
                 </Box>
-
-                <Button
-                    variant="outlined"
-                    sx={{ 
-                        borderRadius: 2,
-                        borderColor: '#4a90e2',
-                        color: '#4a90e2',
-                        '&:hover': {
-                            borderColor: '#357abd',
-                            color: '#357abd',
-                        },
-                        mt: 4,
-                    }}
-                    onClick={handleOpen}
-                >
-                    Save Flashcards
-                </Button>
-
-                <Dialog open={open} onClose={handleClose}>
-                    <DialogTitle>Save Flashcards</DialogTitle>
-                    <DialogContent>
-                        <DialogContentText>
-                            Enter a name for your flashcard collection.
-                        </DialogContentText>
-                        <TextField
-                            autoFocus
-                            margin="dense"
-                            label="Collection Name"
-                            type="text"
-                            fullWidth
-                            variant="outlined"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            sx={{
-                                '& .MuiOutlinedInput-root': {
-                                    '& fieldset': {
-                                        borderColor: 'grey.800',
-                                    },
-                                    '&:hover fieldset': {
-                                        borderColor: 'grey.800',
-                                    },
-                                    '&.Mui-focused fieldset': {
-                                        borderColor: '#4a90e2',
-                                    },
-                                },
-                                '& .MuiInputLabel-root': {
-                                    color: 'white',
-                                    '&.Mui-focused': {
-                                        color: '#4a90e2',
-                                    },
-                                },
-                            }}
-                        />
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={handleClose}>Cancel</Button>
-                        <Button onClick={saveFlashCards}>Save</Button>
-                    </DialogActions>
-                </Dialog>
             </Container>
+
+            <Dialog open={open} onClose={handleClose}>
+                <DialogTitle>Save Flashcards</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        Please enter a topic name to save these flashcards.
+                    </DialogContentText>
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        label="Topic Name"
+                        fullWidth
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClose} color="secondary">
+                        Cancel
+                    </Button>
+                    <Button onClick={saveFlashCards} color="primary">
+                        Save
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     );
 }
